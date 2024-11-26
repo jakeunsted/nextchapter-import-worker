@@ -1,0 +1,10 @@
+{
+  "Records": [
+    {
+      "body": {
+        "bucket": { "name": "nextchapter-imports" },
+        "object": { "key": "storygraph/1.csv" }
+      }
+    }
+  ]
+}
