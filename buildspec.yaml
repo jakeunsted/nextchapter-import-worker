@@ -14,8 +14,9 @@ phases:
       - echo "DEBUG: $DEBUG"
   build:
     commands:
-      - echo "Building deployment package..."
-      - zip -r function.zip .  # Package the Lambda function
+      - echo "Inspecting directory before packaging..."
+      - ls -la
+      - zip -r function.zip .
   post_build:
     commands:
       - echo "Deploying directly to AWS Lambda..."
