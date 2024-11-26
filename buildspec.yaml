@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.12
+    commands:
+      - echo "Installing dependencies..."
+      - pip install -r requirements.txt -t .
+  pre_build:
+    commands:
+      - echo "Pre-build phase: Validating environment variables..."
+      - echo "BASE_URL: $BASE_URL"
+      - echo "DEBUG: $DEBUG"
+  build:
+    commands:
+      - echo "Building deployment package..."
+      - zip -r function.zip .  # Package the Lambda function
+  post_build:
+    commands:
+      - echo "Deploying directly to AWS Lambda..."
+      - aws lambda update-function-code --function-name nextchapter-storygraph-import-worker --zip-file fileb://function.zip
+      - echo "Deployment complete."
