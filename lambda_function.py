@@ -107,7 +107,9 @@ def lambda_handler(event, context):
                         isbn_or_uid = row.get("ISBN/UID")
                         if not isbn_or_uid.isdigit() or len(isbn_or_uid) != 13:
                             isbn_or_uid = fetch_isbn_from_google_books(title)
-                        created_by_id = os.path.splitext(os.path.basename(object_key))[0]
+                        filename = os.path.basename(object_key)
+                        user_id, part = filename.split("-part")[0], filename.split("-part")[1].split(".csv")[0]
+                        created_by_id = int(user_id)
                         tags = []
                         
                         google_self_link = fetch_google_self_link(isbn_or_uid, title)
@@ -130,7 +132,7 @@ def lambda_handler(event, context):
                         book_id = book["id"]
 
                         if DEBUG:
-                            print(f"Book {title} created with ID: {book_id}")
+                            print(f"Book {title} created with ID: {book_id} from import part: {part}")
 
                         # Retry logic for /users-books
                         user_id = created_by_id
