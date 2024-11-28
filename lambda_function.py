@@ -83,13 +83,15 @@ def lambda_handler(event, context):
 
     for record in event['Records']:
         try:
-            # Decode the record body if it's a string
-            s3_info = record['body']
-            if isinstance(s3_info, str):
-                s3_info = json.loads(s3_info)
+            # Decode the SQS message body
+            message_body = record.get('body')
+            if isinstance(message_body, str):
+                message_body = json.loads(message_body)
 
-            bucket_name = s3_info['bucket']['name']
-            object_key = s3_info['object']['key']
+            # Extract S3 event notification details
+            s3_event = message_body.get('Records', [])[0]
+            bucket_name = s3_event.get('s3', {}).get('bucket', {}).get('name')
+            object_key = s3_event.get('s3', {}).get('object', {}).get('key')
             
             # Debugging logs
             if DEBUG:
