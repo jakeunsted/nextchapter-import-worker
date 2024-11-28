@@ -105,6 +105,10 @@ def lambda_handler(event, context):
                 reader = csv.DictReader(csv_file)
                 for row in reader:
                     try:
+                        # Skip adding if the book was not finished
+                        if row.get("Read Status") == "did-not-finish":
+                          continue
+                        
                         title = row.get("Title")
                         isbn_or_uid = row.get("ISBN/UID")
                         if not isbn_or_uid.isdigit() or len(isbn_or_uid) != 13:
@@ -116,7 +120,6 @@ def lambda_handler(event, context):
                         
                         google_self_link = fetch_google_self_link(isbn_or_uid, title)
 
-                        # Post to /books
                         book_payload = {
                             "title": title,
                             "isbn": isbn_or_uid,
@@ -136,11 +139,21 @@ def lambda_handler(event, context):
                         if DEBUG:
                             print(f"Book {title} created with ID: {book_id} from import part: {part}")
 
-                        # Retry logic for /users-books
                         user_id = created_by_id
-                        dates_read = row.get("Dates Read", "").split("-")
-                        date_started = dates_read[0].strip() if dates_read else None
-                        date_finished = dates_read[-1].strip() if len(dates_read) > 1 else None
+
+                        # Process dates - if there is a "-" then it is a range, otherwise it is a single date
+                        dates_read = row.get("Dates Read", "")
+                        if "-" in dates_read:
+                            date_started, date_finished = map(str.strip, dates_read.split("-"))
+                        else:
+                            date_started = dates_read.strip()
+                            date_finished = date_started
+                        # Check if date_started or date_finished is just a year
+                        if date_started and len(date_started) == 4 and date_started.isdigit():
+                            date_started = f"{date_started}-01-01"
+                        if date_finished and len(date_finished) == 4 and date_finished.isdigit():
+                            date_finished = f"{date_finished}-01-01"
+
                         user_notes = row.get("Review", "No notes provided")
                         star_rating = row.get("Star Rating", None)
                         user_rating = int(star_rating * 2) if star_rating else None
