@@ -110,7 +110,7 @@ def lambda_handler(event, context):
                         if not isbn_or_uid.isdigit() or len(isbn_or_uid) != 13:
                             isbn_or_uid = fetch_isbn_from_google_books(title)
                         filename = os.path.basename(object_key)
-                        user_id, part = filename.split("-part")[0], filename.split("-part")[1].split(".csv")[0]
+                        user_id, part = filename.split("_part")[0], filename.split("_part")[1].split(".csv")[0]
                         created_by_id = int(user_id)
                         tags = []
                         
